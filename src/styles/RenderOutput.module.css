@@ -1,0 +1,17 @@
+.mainDiv {
+    gap: 0.5rem;
+}
+
+.dropdownSelect {
+    margin: 0;
+}
+
+.floatingLabel {
+    width: fit-content;
+    flex-grow: 1;
+}
+
+.outputImageVideo {
+    width: 100%;
+    height: 100%;
+}
