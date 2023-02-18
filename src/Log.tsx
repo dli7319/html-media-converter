@@ -1,4 +1,5 @@
 import React from "react";
+import styles from "./styles/Log.module.css";
 
 export default function Log({
     log,
@@ -8,7 +9,7 @@ export default function Log({
     className?: string
 }) {
     return (
-        <div className={`${className}`}>
+        <div className={`${className} ${styles.mainDiv}`}>
             <h2>Log</h2>
             <div className="text-start">
                 <pre>{log}</pre>
