@@ -1,25 +1,25 @@
 {
-  "name": "html-checksum-verifier",
+  "name": "html-media-converter",
   "version": "1.0.0",
-  "description": "HTML Checksum Verifier",
+  "description": "HTML Media Converter",
   "main": "main.js",
   "scripts": {
     "setup": "npm ci",
-    "build": "rm -f dist/*js* && webpack --mode=production",
+    "build": "rm -f dist/*js* dist/*.LICENSE.txt && webpack --mode=production",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "webpack serve --mode development"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dli7319/html-checksum-verifier.git"
+    "url": "git+https://github.com/dli7319/html-media-converter.git"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/dli7319/html-checksum-verifier/issues"
+    "url": "https://github.com/dli7319/html-media-converter/issues"
   },
-  "homepage": "https://github.com/dli7319/html-checksum-verifier#readme",
+  "homepage": "https://github.com/dli7319/html-media-converter#readme",
   "devDependencies": {
     "@babel/core": "^7.20.12",
     "@babel/preset-env": "^7.20.2",
