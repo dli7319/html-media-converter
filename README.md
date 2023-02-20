@@ -14,7 +14,8 @@ Convert your media files to any format you want locally using [ffmpeg.wasm](http
 3. Run `npm run dev` to start the development server.
 
 ## Deployment
-1. Serve the `dist` folder using a web server with the following headers:
+1. Github automatically builds to the `dist` branch on every push to the `main` branch.
+2. Serve the `dist` branch using a web server with the following headers:
     * `Cross-Origin-Embedder-Policy: require-corp`
     * `Cross-Origin-Opener-Policy: same-origin`
     * These headers are required for the ffmpeg.wasm which supports WebAssembly threads.
