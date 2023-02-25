@@ -49,6 +49,7 @@ export default function MediaConverter() {
     async function beginRender() {
         if (selectedFile) {
             setLog('');
+            setOutputVideoSrc('');
             const file = selectedFile;
             await ffmpeg.current.load();
             const updatedOutputOptions = { ...outputOptions };
