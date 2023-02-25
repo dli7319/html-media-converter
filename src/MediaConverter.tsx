@@ -1,12 +1,20 @@
 import React, { useState } from 'react';
 import { createFFmpeg, fetchFile } from '@ffmpeg/ffmpeg';
 
-import FileInput from './FileInput';
+import FileInput, { InputOptions, defaultInputOptions } from './FileInput';
 import RenderOutput, { OutputOptions, containerToMime, defaultOutputOptions } from './RenderOutput';
 import Log from './Log';
 import styles from './styles/MediaConverter.module.css';
 
-function buildFFmpegCall(file: File, outputOptions: OutputOptions): [string[], string, string] {
+function buildFFmpegCall(inputOptions: InputOptions, outputOptions: OutputOptions):
+    [string[], string, string] {
+    const file = inputOptions.file!;
+    const { ss, to } = inputOptions;
+    const inputCall = [
+        (ss ? ['-ss', ss] : []),
+        (to ? ['-to', to] : []),
+        '-i', file.name,
+    ].flat();
     const container = outputOptions.container || file.name.split('.').pop();
     if (typeof container !== 'string') {
         throw new Error('No container selected');
@@ -17,7 +25,7 @@ function buildFFmpegCall(file: File, outputOptions: OutputOptions): [string[], s
         filters.push('split=2[v1][v2];[v1]palettegen=stats_mode=full[palette];[v2][palette]paletteuse=dither=sierra2_4a');
     }
     let ffmpegCall = [
-        '-i', file.name,
+        inputCall,
         (outputOptions.framerate ? ['-r', outputOptions.framerate.toString()] : []),
         (outputOptions.pixelFormat ? ['-pix_fmt', outputOptions.pixelFormat] : []),
         (filters.length > 0 ? ['-filter_complex', '[0]' + filters.join(';')] : []),
@@ -32,6 +40,7 @@ export default function MediaConverter() {
 
     const [log, setLog] = useState('');
     const [outputVideoSrc, setOutputVideoSrc] = useState('');
+    const [inputOptions, setInputOptions] = useState<InputOptions>(defaultInputOptions);
     const [outputOptions, setOutputOptions] = useState<OutputOptions>(defaultOutputOptions);
     const [progress, setProgress] = useState(-1);
     const ffmpeg = useState(() => ({
@@ -42,7 +51,6 @@ export default function MediaConverter() {
             }
         })
     }))[0];
-    const [selectedFile, setSelectedFile] = useState<null | File>(null);
 
     ffmpeg.current.setLogger(({ message }) => {
         setLog((prev) => prev + "\n" + message);
@@ -61,20 +69,14 @@ export default function MediaConverter() {
         });
     }
 
-    async function transcode(e: React.ChangeEvent<HTMLInputElement>) {
-        const file = e.target.files?.item(0);
-        if (file) {
-            setSelectedFile(file);
-        }
-    }
-
     async function beginRender() {
-        if (selectedFile) {
+        const { file } = inputOptions;
+        if (file) {
             setLog('');
             setOutputVideoSrc('');
             await ffmpeg.current.load();
-            ffmpeg.current.FS('writeFile', selectedFile.name, await fetchFile(selectedFile));
-            const [ffmpegCall, outputFilename, outputMime] = buildFFmpegCall(selectedFile, outputOptions);
+            ffmpeg.current.FS('writeFile', file.name, await fetchFile(file));
+            const [ffmpegCall, outputFilename, outputMime] = buildFFmpegCall(inputOptions, outputOptions);
             await ffmpeg.current.run(...ffmpegCall);
             const data = ffmpeg.current.FS('readFile', outputFilename);
             const url = URL.createObjectURL(new Blob([data.buffer], { type: outputMime }));
@@ -87,14 +89,16 @@ export default function MediaConverter() {
 
     const componentClasses = `text-center ${styles.components}`;
     return <div className={`text-center d-flex flex-wrap ${styles.mainContainer}`}>
-        <FileInput className={componentClasses} onChange={transcode} file={selectedFile} />
+        <FileInput className={componentClasses}
+            inputOptions={inputOptions}
+            setInputOptions={setInputOptions} />
         <RenderOutput className={componentClasses}
             outputOptions={outputOptions}
             setOutputOptions={setOutputOptions}
             outputVideoSrc={outputVideoSrc}
             progress={progress}
             onStartRenderClicked={
-                selectedFile ? beginRender : undefined} />
+                inputOptions.file ? beginRender : undefined} />
         <Log className={componentClasses} log={log} />
     </div>;
 }
