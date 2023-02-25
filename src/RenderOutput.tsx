@@ -82,6 +82,7 @@ export default function RenderOutput({
             onChange={(e) => setOutputOptions({ ...outputOptions, webpLoop: e.target.checked })}
         />
     ) : null;
+    console.log("output", outputVideoSrc);
     return (
         <div className={`${className} ${styles.mainDiv}`}>
             <h2>Output</h2>

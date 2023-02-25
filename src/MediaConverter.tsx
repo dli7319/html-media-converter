@@ -7,7 +7,7 @@ import Log from './Log';
 import styles from './styles/MediaConverter.module.css';
 
 function buildFFmpegCall(inputOptions: InputOptions, outputOptions: OutputOptions):
-    [string[], string, string] {
+    [string[], string, string, OutputOptions] {
     const file = inputOptions.file!;
     const { ss, to } = inputOptions;
     const inputCall = [
@@ -20,6 +20,10 @@ function buildFFmpegCall(inputOptions: InputOptions, outputOptions: OutputOption
         throw new Error('No container selected');
     }
     const outputFilename = `output.${container}`;
+    const newOutputOptions = {
+        ...outputOptions,
+        container: container
+    };
     const filters = [];
     if (outputOptions.container == "gif" && outputOptions.hqGif) {
         filters.push('split=2[v1][v2];[v1]palettegen=stats_mode=full[palette];[v2][palette]paletteuse=dither=sierra2_4a');
@@ -33,7 +37,7 @@ function buildFFmpegCall(inputOptions: InputOptions, outputOptions: OutputOption
         outputFilename
     ].flat();
     const outputMime = containerToMime[container] as string;
-    return [ffmpegCall, outputFilename, outputMime];
+    return [ffmpegCall, outputFilename, outputMime, newOutputOptions];
 }
 
 export default function MediaConverter() {
@@ -76,11 +80,17 @@ export default function MediaConverter() {
             setOutputVideoSrc('');
             await ffmpeg.current.load();
             ffmpeg.current.FS('writeFile', file.name, await fetchFile(file));
-            const [ffmpegCall, outputFilename, outputMime] = buildFFmpegCall(inputOptions, outputOptions);
+            const [ffmpegCall, outputFilename, outputMime, newOutputOptions
+            ] = buildFFmpegCall(inputOptions, outputOptions);
             await ffmpeg.current.run(...ffmpegCall);
             const data = ffmpeg.current.FS('readFile', outputFilename);
+            if (data.length == 0) {
+                console.warn('No data returned');
+                return;
+            }
             const url = URL.createObjectURL(new Blob([data.buffer], { type: outputMime }));
             setOutputVideoSrc(url);
+            setOutputOptions(newOutputOptions);
             resetFFmpeg();
         } else {
             console.warn('No file selected');
