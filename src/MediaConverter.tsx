@@ -22,7 +22,7 @@ export default function MediaConverter() {
     }))[0];
     const [selectedFile, setSelectedFile] = useState<null | File>(null);
 
-    ffmpeg.current.setLogger(({ type, message }) => {
+    ffmpeg.current.setLogger(({ message }) => {
         setLog((prev) => prev + "\n" + message);
     });
 
@@ -71,6 +71,7 @@ export default function MediaConverter() {
                 (updatedOutputOptions.framerate ? ['-r', updatedOutputOptions.framerate.toString()] : []),
                 (updatedOutputOptions.pixelFormat ? ['-pix_fmt', updatedOutputOptions.pixelFormat] : []),
                 (filters.length > 0 ? ['-filter_complex', '[0]' + filters.join(';')] : []),
+                (updatedOutputOptions.webpLoop ? ['-loop', '0'] : []),
                 outputFilename
             ].flat();
             const outputMime = containerToMime[updatedOutputOptions.container] as string;

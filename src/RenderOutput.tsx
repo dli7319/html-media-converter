@@ -10,10 +10,12 @@ export interface OutputOptions {
     pixelFormat?: string;
     framerate?: number;
     hqGif?: boolean;
+    webpLoop?: boolean;
 }
 
 export const defaultOutputOptions: OutputOptions = Object.freeze({
-    hqGif: true
+    hqGif: true,
+    webpLoop: true
 });
 
 export const containerToMime: any = {
@@ -73,6 +75,13 @@ export default function RenderOutput({
             onChange={onSetHQGIF}
         />
     ) : null;
+    const webpLoopSelection = outputOptions.container == 'webp' ? (
+        <Form.Switch
+            label="Loop"
+            checked={outputOptions.webpLoop || false}
+            onChange={(e) => setOutputOptions({ ...outputOptions, webpLoop: e.target.checked })}
+        />
+    ) : null;
     return (
         <div className={`${className} ${styles.mainDiv}`}>
             <h2>Output</h2>
@@ -110,6 +119,7 @@ export default function RenderOutput({
             <div>
                 {/* Extra options */}
                 {hqGifSelection}
+                {webpLoopSelection}
             </div>
             <Button variant="primary" onClick={onStartRenderClicked}
                 hidden={onStartRenderClicked == null}>Start Render</Button>
