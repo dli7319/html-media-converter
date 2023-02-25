@@ -11,8 +11,10 @@ export default function Log({
     return (
         <div className={`${className} ${styles.mainDiv}`}>
             <h2>Log</h2>
-            <div className="text-start">
-                <pre>{log}</pre>
+            <div className={`text-start ${styles.logContainer}`}>
+                <pre
+                className={styles.logPre}
+                >{log}</pre>
             </div>
         </div>
     );
