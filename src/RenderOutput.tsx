@@ -113,7 +113,7 @@ export default function RenderOutput({
             </div>
             <Button variant="primary" onClick={onStartRenderClicked}
                 hidden={onStartRenderClicked == null}>Start Render</Button>
-            <ProgressBar animated now={progress} hidden={progress < 0} label={`${progress.toFixed(1)}%`} />
+            <ProgressBar animated={progress < 100} now={progress} hidden={progress < 0} label={`${progress.toFixed(1)}%`} />
             <div>
                 <video src={outputVideoSrc} controls
                     className={styles.outputImageVideo}
