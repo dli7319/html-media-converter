@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React, { useMemo } from 'react';
 
 import styles from './styles/FileInput.module.css';
 
@@ -17,7 +17,9 @@ export default function FileInput({
     return (
         <div className={`${className} ${styles.mainDiv}`}>
             <h2>File Input</h2>
-            <input type="file" id="file" className="fileInput" onChange={onChange} />
+            <input type="file" id="file" className="fileInput"
+                accept='video/*,image/*,audio/*'
+                onChange={onChange} />
             <div>
                 {/* Preview */}
                 {fileIsVideo && <video src={fileUrl} controls className={styles.previewImageVideo} />}
