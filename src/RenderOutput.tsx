@@ -134,6 +134,11 @@ export default function RenderOutput({
                     className={styles.outputImageVideo}
                     hidden={outputVideoSrc == '' ||
                         !isImageContainer(outputOptions.container || "")}></img>
+                <small className="text-muted"
+                    hidden={outputVideoSrc == ''}
+                >
+                    Right click and save as to download the output.
+                </small>
             </div>
         </div>);
 }
