@@ -9,7 +9,12 @@ export interface OutputOptions {
     container?: string;
     pixelFormat?: string;
     framerate?: number;
+    hqGif?: boolean;
 }
+
+export const defaultOutputOptions: OutputOptions = Object.freeze({
+    hqGif: true
+});
 
 export const containerToMime: any = {
     'mp4': 'video/mp4',
@@ -57,6 +62,17 @@ export default function RenderOutput({
         console.log(`Selected framerate: ${e.target.value}`);
         setOutputOptions({ ...outputOptions, framerate: parseInt(e.target.value) });
     }
+    function onSetHQGIF(e: React.ChangeEvent<HTMLInputElement>) {
+        console.log(`Selected HQ GIF: ${e.target.checked}`);
+        setOutputOptions({ ...outputOptions, hqGif: e.target.checked });
+    }
+    const hqGifSelection = outputOptions.container == 'gif' ? (
+        <Form.Switch
+            label="HQ GIF"
+            checked={outputOptions.hqGif || false}
+            onChange={onSetHQGIF}
+        />
+    ) : null;
     return (
         <div className={`${className} ${styles.mainDiv}`}>
             <h2>Output</h2>
@@ -90,6 +106,10 @@ export default function RenderOutput({
                         <option value="60">60</option>
                     </Form.Select>
                 </FloatingLabel>
+            </div>
+            <div>
+                {/* Extra options */}
+                {hqGifSelection}
             </div>
             <Button variant="primary" onClick={onStartRenderClicked}
                 hidden={onStartRenderClicked == null}>Start Render</Button>

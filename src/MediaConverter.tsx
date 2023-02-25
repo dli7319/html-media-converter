@@ -1,8 +1,8 @@
-import React, { useState, useReducer, useRef } from 'react';
-import { createFFmpeg, fetchFile, FFmpeg } from '@ffmpeg/ffmpeg';
+import React, { useState } from 'react';
+import { createFFmpeg, fetchFile } from '@ffmpeg/ffmpeg';
 
 import FileInput from './FileInput';
-import RenderOutput, { OutputOptions, containerToMime } from './RenderOutput';
+import RenderOutput, { OutputOptions, containerToMime, defaultOutputOptions } from './RenderOutput';
 import Log from './Log';
 import styles from './styles/MediaConverter.module.css';
 
@@ -10,7 +10,7 @@ export default function MediaConverter() {
 
     const [log, setLog] = useState('');
     const [outputVideoSrc, setOutputVideoSrc] = useState('');
-    const [outputOptions, setOutputOptions] = useState<OutputOptions>({});
+    const [outputOptions, setOutputOptions] = useState<OutputOptions>(defaultOutputOptions);
     const [progress, setProgress] = useState(-1);
     const ffmpeg = useState(() => ({
         current: createFFmpeg({
@@ -61,10 +61,15 @@ export default function MediaConverter() {
             }
             ffmpeg.current.FS('writeFile', file.name, await fetchFile(file));
             const outputFilename = `output.${updatedOutputOptions.container}`;
+            const filters = [];
+            if (outputOptions.container == "gif" && outputOptions.hqGif) {
+                filters.push('split=2[v1][v2];[v1]palettegen=stats_mode=full[palette];[v2][palette]paletteuse=dither=sierra2_4a');
+            }
             let ffmpegCall = [
                 '-i', file.name,
                 (updatedOutputOptions.framerate ? ['-r', updatedOutputOptions.framerate.toString()] : []),
                 (updatedOutputOptions.pixelFormat ? ['-pix_fmt', updatedOutputOptions.pixelFormat] : []),
+                (filters.length > 0 ? ['-filter_complex', '[0]' + filters.join(';')] : []),
                 outputFilename
             ].flat();
             const outputMime = containerToMime[updatedOutputOptions.container] as string;
