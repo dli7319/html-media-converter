@@ -127,14 +127,16 @@ export default function FileInput({
     return (
         <div className={`${className} ${styles.mainDiv}`}>
             <h2>File Input</h2>
-            <input type="file" id="file" className="fileInput"
+            <Form.Control
+                type="file"
                 accept='video/*,image/*,audio/*'
-                onChange={(e) => {
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     const file = e.target.files?.item(0);
                     if (file) {
                         setInputOptions({ ...inputOptions, file });
                     }
-                }} />
+                }}
+            />
             <div>
                 {/* Preview */}
                 {fileIsVideo && <video src={fileUrl} ref={videoPreviewRef}
