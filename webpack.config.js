@@ -12,9 +12,9 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.(js|jsx|tsx|ts)$/,
+        test: /\.tsx?$/,
+        use: 'ts-loader',
         exclude: /node_modules/,
-        loader: 'babel-loader'
       },
       {
         test: /\.css$/i,
@@ -42,4 +42,9 @@ module.exports = {
     },
     compress: true,
   },
+  ignoreWarnings: [
+    {
+      module: /@ffmpeg\/ffmpeg/,
+    },
+  ],
 };

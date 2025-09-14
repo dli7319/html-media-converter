@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { createFFmpeg, fetchFile } from '@ffmpeg/ffmpeg';
+import React, { useRef, useState } from 'react';
+import { FFmpeg } from '@ffmpeg/ffmpeg';
+import { fetchFile, toBlobURL } from '@ffmpeg/util';
 
 import FileInput, { InputOptions, defaultInputOptions } from './FileInput';
 import RenderOutput, { OutputOptions, containerToMime, defaultOutputOptions } from './RenderOutput';
@@ -47,55 +48,48 @@ export default function MediaConverter() {
     const [inputOptions, setInputOptions] = useState<InputOptions>(defaultInputOptions);
     const [outputOptions, setOutputOptions] = useState<OutputOptions>(defaultOutputOptions);
     const [progress, setProgress] = useState(-1);
-    const ffmpeg = useState(() => ({
-        current: createFFmpeg({
-            log: false,
-            progress: (p) => {
-                setProgress(100 * p.ratio);
-            }
-        })
-    }))[0];
-
-    ffmpeg.current.setLogger(({ message }) => {
-        setLog((prev) => prev + "\n" + message);
-    });
-
-    function resetFFmpeg() {
-        ffmpeg.current = createFFmpeg({
-            log: true,
-            logger: (p) => {
-                console.log("Logger", p);
-            },
-            progress: (p) => {
-                console.log("Progress", p);
-                setProgress(100 * p.ratio);
-            }
-        });
-    }
+    const ffmpegRef = useRef(new FFmpeg());
 
     async function beginRender() {
         const { file } = inputOptions;
         if (file) {
+            const ffmpeg = ffmpegRef.current;
+            ffmpeg.on('log', ({ message }) => {
+                setLog((prev) => prev + "\n" + message);
+            });
+            ffmpeg.on('progress', ({ progress }) => {
+                setProgress(100 * progress);
+            });
             setLog('');
             setOutputVideoSrc('');
-            await ffmpeg.current.load();
-            ffmpeg.current.FS('writeFile', file.name, await fetchFile(file));
+            const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.4/dist/umd'
+            await ffmpeg.load({
+                coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+                wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+            });
+            await ffmpeg.writeFile(file.name, await fetchFile(file));
             const [ffmpegCall, outputFilename, outputMime, newOutputOptions
             ] = buildFFmpegCall(inputOptions, outputOptions);
-            await ffmpeg.current.run(...ffmpegCall);
-            const data = ffmpeg.current.FS('readFile', outputFilename);
+            await ffmpeg.exec(ffmpegCall);
+            const data = await ffmpeg.readFile(outputFilename);
             if (data.length == 0) {
                 console.warn('No data returned');
                 return;
             }
-            const url = URL.createObjectURL(new Blob([data.buffer], { type: outputMime }));
+            let blob: Blob;
+            if (typeof data === 'string') {
+                blob = new Blob([data], { type: outputMime });
+            } else {
+                blob = new Blob([new Uint8Array(data)], { type: outputMime });
+            }
+            const url = URL.createObjectURL(blob);
             setOutputVideoSrc(url);
             setOutputOptions(newOutputOptions);
-            resetFFmpeg();
         } else {
             console.warn('No file selected');
         }
     }
+
 
     const componentClasses = `text-center ${styles.components}`;
     return <div className={`text-center d-flex flex-wrap ${styles.mainContainer}`}>
