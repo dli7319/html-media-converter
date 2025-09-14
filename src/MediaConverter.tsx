@@ -29,7 +29,7 @@ function buildFFmpegCall(inputOptions: InputOptions, outputOptions: OutputOption
     if (outputOptions.container == "gif" && outputOptions.hqGif) {
         filters.push('split=2[v1][v2];[v1]palettegen=stats_mode=full[palette];[v2][palette]paletteuse=dither=sierra2_4a');
     }
-    let ffmpegCall = [
+    const ffmpegCall = [
         inputCall,
         (outputOptions.framerate ? ['-r', outputOptions.framerate.toString()] : []),
         (outputOptions.pixelFormat ? ['-pix_fmt', outputOptions.pixelFormat] : []),
@@ -37,7 +37,7 @@ function buildFFmpegCall(inputOptions: InputOptions, outputOptions: OutputOption
         (outputOptions.webpLoop ? ['-loop', '0'] : []),
         outputFilename
     ].flat();
-    const outputMime = containerToMime[container] as string;
+    const outputMime = containerToMime[container as keyof typeof containerToMime];
     return [ffmpegCall, outputFilename, outputMime, newOutputOptions];
 }
 
@@ -92,7 +92,7 @@ export default function MediaConverter() {
 
 
     const componentClasses = `text-center ${styles.components}`;
-    return <div className={`text-center d-flex flex-wrap ${styles.mainContainer}`}>
+    return <div className={`text-center d-flex flex-wrap ${styles.mainContainer}`}> 
         <FileInput className={componentClasses}
             inputOptions={inputOptions}
             setInputOptions={setInputOptions} />

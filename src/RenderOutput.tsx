@@ -18,14 +18,14 @@ export const defaultOutputOptions: OutputOptions = Object.freeze({
     webpLoop: true
 });
 
-export const containerToMime: any = {
+export const containerToMime = {
     'mp4': 'video/mp4',
     'webm': 'video/webm',
     'png': 'image/png',
     'jpg': 'image/jpeg',
     'webp': 'image/webp',
     'gif': 'image/gif'
-};
+} as const;
 
 const videoContainers = ['mp4', 'webm'];
 const imageContainers = ['png', 'jpg', 'webp', 'gif'];

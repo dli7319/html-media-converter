@@ -1,8 +1,14 @@
-const path = require('path');
+import path from 'path';
+import ESLintPlugin from "eslint-webpack-plugin";
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
-module.exports = {
+export default {
   mode: isDevelopment ? 'development' : 'production',
   entry: './src/index.tsx',
   output: {
@@ -47,4 +53,5 @@ module.exports = {
       module: /@ffmpeg\/ffmpeg/,
     },
   ],
+  plugins: [new ESLintPlugin()],
 };
