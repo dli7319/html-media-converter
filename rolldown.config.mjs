@@ -9,6 +9,7 @@ export default defineConfig({
   },
   checks: {
     emptyImportMeta: false,
+    moduleLevelDirective: false,
   },
   resolve: {
     alias: {
